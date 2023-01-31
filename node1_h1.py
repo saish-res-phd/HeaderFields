@@ -1,25 +1,29 @@
-# Import necessary libraries
 import socket
-import struct
+import time
 
-# Define IP and port
-IP = '10.0.0.2' # IP of h2
-PORT= 6653
+IP = '10.0.0.1' # node h1 IP address
+PORT = 12345
+HEADER_FIELDS = 20
 
-# Create a socket object
+# create a socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Connect to h2
-s.connect((IP,PORT))
+# establish a connection to node h2
+connected = False
+start_time = time.time()
+while not connected:
+    try:
+        s.connect((IP, PORT))
+        connected = True
+    except socket.error:
+        if time.time() - start_time > 10:
+            print("Connection to node h2 failed")
+            break
+        time.sleep(1)
 
-# Generate 20 OpenFlow header fields
-ofp_header_fields = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+# send the header fields
+for i in range(HEADER_FIELDS):
+    s.send(str(i).encode())
 
-# Pack the header fields into binary data
-data = struct.pack('!20L', *ofp_header_fields)
-
-# Send the binary data to h2
-s.sendall(data)
-
-# Close the socket
+# close the socket
 s.close()
