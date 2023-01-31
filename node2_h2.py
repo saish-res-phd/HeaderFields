@@ -1,7 +1,7 @@
 import socket
 import time
 
-IP = '10.0.0.2' # node h2 IP address
+IP = '192.168.1.102' # node h2 IP address
 PORT = 6634
 HEADER_FIELDS = 20
 
@@ -29,20 +29,17 @@ while not connected:
 
 # receive the header fields
 header_fields = []
-while len(header_fields) < HEADER_FIELDS:
-    current_time = time.time()
-    elapsed_time = current_time - start_time
-    if elapsed_time >= 1:
-        start_time = current_time
-        bandwidth = len(header_fields) * 1024 / elapsed_time
-        header_fields = []
-        print("Latency: {:.2f} seconds".format(elapsed_time))
-        print("Bandwidth: {:.2f} KBps".format(bandwidth / 1024))
-    try:
-        data = conn.recv(1024)
-        header_fields.append(data.decode())
-    except socket.error:
-        pass
+for i in range(HEADER_FIELDS):
+    data = conn.recv(1024)
+    header_fields.append(data.decode())
 
 # close the connection
 conn.close()
+
+# measure the performance
+latency = time.time() - start_time
+bandwidth = HEADER_FIELDS * 1024 / latency
+
+# display the results
+print("Latency: {:.2f} seconds".format(latency))
+print("Bandwidth: {:.2f} KBps".format(bandwidth / 1024))
