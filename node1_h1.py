@@ -1,16 +1,19 @@
-import dpkt
-import time
+import ryu.ofproto.ofproto_v1_0 as ofp
 import socket
+import time
 
-# Create an OpenFlow header
+# Create a Ryu OpenFlow header
 def create_header():
-    of = dpkt.openflow.OpenFlow()
-    of.version = 1
-    of.header_type = dpkt.openflow.OFPT_HELLO
-    of.xid = 0
-    return of.pack()
+    msg = ryu.ofproto.ofproto_v1_0_parser.OFPHello(
+        datapath_id=0,
+        n_buffers=0,
+        n_tables=0,
+        capabilities=0,
+        actions=0
+    )
+    return msg
 
-# Create 20 OpenFlow headers
+# Create 20 Ryu OpenFlow headers
 headers = [create_header() for _ in range(20)]
 
 # Send headers to node h2
@@ -18,7 +21,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(('10.0.0.2', 6653))
 start = time.time()
 for header in headers:
-    sock.send(header)
+    sock.send(header.buf)
 end = time.time()
 
 # Calculate elapsed time
