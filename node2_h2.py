@@ -1,43 +1,45 @@
-# Import necessary libraries
 import socket
-import struct
 import time
 
-# Define IP and port
-IP = '10.0.0.2'
-PORT = 6653
+IP = '10.0.0.2' # node h2 IP address
+PORT = 12345
+HEADER_FIELDS = 20
 
-# Create a socket object
+# create a socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Bind to IP and port
+# bind the socket to node h2's IP and port
 s.bind((IP, PORT))
 
-# Listen for incoming connections
-s.listen()
+# listen for incoming connections
+s.listen(1)
 
-# Accept the incoming connection from h1
-conn, addr = s.accept()
-
-# Record the start time
+# accept the connection from node h1
+connected = False
 start_time = time.time()
+while not connected:
+    try:
+        conn, addr = s.accept()
+        connected = True
+    except socket.error:
+        if time.time() - start_time > 10:
+            print("Connection from node h1 failed")
+            break
+        time.sleep(1)
 
-# Receive the binary data from h1
-data = conn.recv(80)
+# receive the header fields
+header_fields = []
+for i in range(HEADER_FIELDS):
+    data = conn.recv(1024)
+    header_fields.append(data.decode())
 
-# Unpack the binary data into header fields
-ofp_header_fields = struct.unpack('!20L', data)
-
-# Record the end time
-end_time = time.time()
-
-# Calculate the latency
-latency = end_time - start_time
-
-# Print the results
-print("Received 20 OpenFlow header fields from h1")
-print("Latency: ", latency, "seconds")
-
-# Close the connection and socket
+# close the connection
 conn.close()
-s.close()
+
+# measure the performance
+latency = time.time() - start_time
+bandwidth = HEADER_FIELDS * 1024 / latency
+
+# display the results
+print("Latency:", latency)
+print("Bandwidth:", bandwidth)
