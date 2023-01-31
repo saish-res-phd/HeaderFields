@@ -29,17 +29,20 @@ while not connected:
 
 # receive the header fields
 header_fields = []
-for i in range(HEADER_FIELDS):
-    data = conn.recv(1024)
-    header_fields.append(data.decode())
+while len(header_fields) < HEADER_FIELDS:
+    current_time = time.time()
+    elapsed_time = current_time - start_time
+    if elapsed_time >= 1:
+        start_time = current_time
+        bandwidth = len(header_fields) * 1024 / elapsed_time
+        header_fields = []
+        print("Latency: {:.2f} seconds".format(elapsed_time))
+        print("Bandwidth: {:.2f} KBps".format(bandwidth / 1024))
+    try:
+        data = conn.recv(1024)
+        header_fields.append(data.decode())
+    except socket.error:
+        pass
 
 # close the connection
 conn.close()
-
-# measure the performance
-latency = time.time() - start_time
-bandwidth = HEADER_FIELDS * 1024 / latency
-
-# display the results
-print("Latency:", latency)
-print("Bandwidth:", bandwidth)
