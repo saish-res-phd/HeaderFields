@@ -2,7 +2,7 @@ import socket
 import time
 
 IP = '10.0.0.2' # node h2 IP address
-PORT = 12345
+PORT = 6634
 HEADER_FIELDS = 20
 
 # create a socket
