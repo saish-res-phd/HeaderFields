@@ -4,7 +4,7 @@ import struct
 
 # Define IP and port
 IP = '10.0.0.2' # IP of h2
-PORT= 6653
+PORT= 6633
 
 # Create a socket object
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
