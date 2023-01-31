@@ -1,29 +1,26 @@
 import socket
-import time
 
-IP = '10.0.0.1' # node h1 IP address
-PORT = 6634
+IP = '192.168.1.102' # node h2 IP address
+PORT = 12345
 HEADER_FIELDS = 20
 
 # create a socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# establish a connection to node h2
-connected = False
-start_time = time.time()
-while not connected:
-    try:
-        s.connect((IP, PORT))
-        connected = True
-    except socket.error:
-        if time.time() - start_time > 10:
-            print("Connection to node h2 failed")
-            break
-        time.sleep(1)
+# connect to node h2
+try:
+    s.connect((IP, PORT))
+except socket.error as e:
+    print("Error connecting to node h2:", e)
+    exit()
 
 # send the header fields
 for i in range(HEADER_FIELDS):
-    s.send(str(i).encode())
+    try:
+        s.send(str(i).encode())
+    except socket.error as e:
+        print("Error sending header field", i, ":", e)
+        exit()
 
-# close the socket
+# close the connection
 s.close()
