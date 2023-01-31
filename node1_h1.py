@@ -1,7 +1,7 @@
 import socket
 
-IP = '192.168.1.102' # node h2 IP address
-PORT = 12345
+IP = '10.0.0.2' # node h2 IP address
+PORT = 6653
 HEADER_FIELDS = 20
 
 # create a socket
