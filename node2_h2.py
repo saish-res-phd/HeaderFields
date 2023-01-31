@@ -4,7 +4,7 @@ import struct
 import time
 
 # Define IP and port
-IP = '10.0.0.1'
+IP = '10.0.0.2'
 PORT = 6653
 
 # Create a socket object
