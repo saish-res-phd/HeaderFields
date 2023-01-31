@@ -1,32 +1,24 @@
-from ryu.base import app_manager
-from ryu.controller import ofp_event
-from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
-from ryu.controller.handler import set_ev_cls
-from ryu.ofproto import ofproto_v1_3
+import dpkt
+import time
+import socket
 
-class SimpleSwitch13(app_manager.RyuApp):
-    OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+# Receive headers from node h1
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind(('10.0.0.1', 6653))
+sock.listen(1)
+conn, _ = sock.accept()
 
-    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
-    def switch_features_handler(self, ev):
-        msg = ev.msg
-        self.logger.info("switch_features_handler: %s", msg)
+# Measure performance
+received_headers = 0
+start = time.time()
+while received_headers < 20:
+    header = conn.recv(8)
+    received_headers += 1
+end = time.time()
 
-    @set_ev_cls(ofp_event.EventOFPHello, MAIN_DISPATCHER)
-    def hello_handler(self, ev):
-        self.logger.info("Received Hello message")
+# Calculate elapsed time
+elapsed = end - start
 
-        # Measure performance
-        start = time.time()
-        headers_received = 0
-        while headers_received < 20:
-            header = ev.msg.pack()
-            headers_received += 1
-        end = time.time()
-
-        # Calculate elapsed time
-        elapsed = end - start
-
-        # Print results
-        self.logger.info("Time elapsed: {:.2f} seconds".format(elapsed))
-        self.logger.info("Bandwidth: {:.2f} MBps".format(20 * 8 / (10**6 * elapsed)))
+# Print results
+print("Time elapsed: {:.2f} seconds".format(elapsed))
+print("Bandwidth: {:.2f} MBps".format(20 * 8 / (10**6 * elapsed)))
